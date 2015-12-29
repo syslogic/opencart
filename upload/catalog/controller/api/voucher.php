@@ -11,7 +11,7 @@ class ControllerApiVoucher extends Controller {
 		if (!isset($this->session->data['api_id'])) {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
-			$this->load->model('total/coupon');
+			$this->load->model('total/voucher');
 
 			if (isset($this->request->post['voucher'])) {
 				$voucher = $this->request->post['voucher'];
@@ -97,7 +97,7 @@ class ControllerApiVoucher extends Controller {
 					$json['error']['from_name'] = $this->language->get('error_from_name');
 				}
 
-				if ((utf8_strlen($this->request->post['from_email']) > 96) || !preg_match('/^[^\@]+@.*.[a-z]{2,15}$/i', $this->request->post['from_email'])) {
+				if ((utf8_strlen($this->request->post['from_email']) > 96) || !filter_var($this->request->post['from_email'], FILTER_VALIDATE_EMAIL)) {
 					$json['error']['from_email'] = $this->language->get('error_email');
 				}
 
@@ -105,7 +105,7 @@ class ControllerApiVoucher extends Controller {
 					$json['error']['to_name'] = $this->language->get('error_to_name');
 				}
 
-				if ((utf8_strlen($this->request->post['to_email']) > 96) || !preg_match('/^[^\@]+@.*.[a-z]{2,15}$/i', $this->request->post['to_email'])) {
+				if ((utf8_strlen($this->request->post['to_email']) > 96) || !filter_var($this->request->post['to_email'], FILTER_VALIDATE_EMAIL)) {
 					$json['error']['to_email'] = $this->language->get('error_email');
 				}
 

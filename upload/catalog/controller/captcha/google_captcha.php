@@ -7,8 +7,6 @@ class ControllerCaptchaGoogleCaptcha extends Controller {
 
 		$data['entry_captcha'] = $this->language->get('entry_captcha');
 
-		$this->document->addScript('https://www.google.com/recaptcha/api.js');
-
         if (isset($error['captcha'])) {
 			$data['error_captcha'] = $error['captcha'];
 		} else {
@@ -19,11 +17,7 @@ class ControllerCaptchaGoogleCaptcha extends Controller {
 
         $data['route'] = $this->request->get['route']; 
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/captcha/google_captcha.tpl')) {
-			return $this->load->view($this->config->get('config_template') . '/template/captcha/google_captcha.tpl', $data);
-		} else {
-			return $this->load->view('default/template/captcha/google_captcha.tpl', $data);
-		}
+		return $this->load->view('captcha/google_captcha', $data);
     }
 
     public function validate() {

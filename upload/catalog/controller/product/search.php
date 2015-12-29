@@ -432,15 +432,15 @@ class ControllerProductSearch extends Controller {
 
 			// http://googlewebmastercentral.blogspot.com/2011/09/pagination-with-relnext-and-relprev.html
 			if ($page == 1) {
-			    $this->document->addLink($this->url->link('product/search', '', 'SSL'), 'canonical');
+			    $this->document->addLink($this->url->link('product/search', '', true), 'canonical');
 			} elseif ($page == 2) {
-			    $this->document->addLink($this->url->link('product/search', '', 'SSL'), 'prev');
+			    $this->document->addLink($this->url->link('product/search', '', true), 'prev');
 			} else {
-			    $this->document->addLink($this->url->link('product/search', $url . '&page='. ($page - 1), 'SSL'), 'prev');
+			    $this->document->addLink($this->url->link('product/search', $url . '&page='. ($page - 1), true), 'prev');
 			}
 
 			if ($limit && ceil($product_total / $limit) > $page) {
-			    $this->document->addLink($this->url->link('product/search', $url . '&page='. ($page + 1), 'SSL'), 'next');
+			    $this->document->addLink($this->url->link('product/search', $url . '&page='. ($page + 1), true), 'next');
 			}
 		}
 
@@ -460,10 +460,6 @@ class ControllerProductSearch extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/product/search.tpl')) {
-			$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/product/search.tpl', $data));
-		} else {
-			$this->response->setOutput($this->load->view('default/template/product/search.tpl', $data));
-		}
+		$this->response->setOutput($this->load->view('product/search', $data));
 	}
 }

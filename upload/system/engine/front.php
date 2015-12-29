@@ -7,11 +7,11 @@ final class Front {
 	public function __construct($registry) {
 		$this->registry = $registry;
 	}
-
+	
 	public function addPreAction($pre_action) {
 		$this->pre_action[] = $pre_action;
 	}
-
+	
 	public function dispatch($action, $error) {
 		$this->error = $error;
 
@@ -40,7 +40,7 @@ final class Front {
 
 			$this->error = '';
 		} else {
-			$action = false;
+			$action = '';	
 		}
 
 		return $action;

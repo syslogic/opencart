@@ -16,7 +16,7 @@ class ControllerPaymentG2APay extends Controller {
 
 			$this->session->data['complete'] = $this->language->get('text_complete');
 
-			$this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
+			$this->response->redirect($this->url->ssl('extension/payment', 'token=' . $this->session->data['token'], true));
 		}
 
 		$data['heading_title'] = $this->language->get('heading_title');
@@ -124,25 +124,25 @@ class ControllerPaymentG2APay extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/dashboard', 'token=' . $this->session->data['token'], 'SSL')
+			'href' => $this->url->ssl('common/dashboard', 'token=' . $this->session->data['token'], true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_payment'),
-			'href' => $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL')
+			'href' => $this->url->ssl('extension/payment', 'token=' . $this->session->data['token'], true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('payment/g2apay', 'token=' . $this->session->data['token'], 'SSL')
+			'href' => $this->url->ssl('payment/g2apay', 'token=' . $this->session->data['token'], true)
 		);
 
 		$this->load->model('localisation/order_status');
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-		$data['action'] = $this->url->link('payment/g2apay', 'token=' . $this->session->data['token'], 'SSL');
+		$data['action'] = $this->url->ssl('payment/g2apay', 'token=' . $this->session->data['token'], true);
 
-		$data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
+		$data['cancel'] = $this->url->ssl('extension/payment', 'token=' . $this->session->data['token'], true);
 
 		if (isset($this->request->post['g2apay_username'])) {
 			$data['g2apay_username'] = $this->request->post['g2apay_username'];
@@ -232,7 +232,7 @@ class ControllerPaymentG2APay extends Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('payment/g2apay.tpl', $data));
+		$this->response->setOutput($this->load->view('payment/g2apay', $data));
 	}
 
 	public function order() {
@@ -270,7 +270,7 @@ class ControllerPaymentG2APay extends Controller {
 				$data['order_id'] = $this->request->get['order_id'];
 				$data['token'] = $this->request->get['token'];
 
-				return $this->load->view('payment/g2apay_order.tpl', $data);
+				return $this->load->view('payment/g2apay_order', $data);
 			}
 		}
 	}

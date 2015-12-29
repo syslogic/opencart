@@ -184,10 +184,17 @@ class ControllerCheckoutCart extends Controller {
 			// Totals
 			$this->load->model('extension/extension');
 
-			$total_data = array();
-			$total = 0;
+			$totals = array();
 			$taxes = $this->cart->getTaxes();
-
+			$total = 0;
+			
+			// Because __call can not keep var references so we put them into an array. 			
+			$total_data = array(
+				'totals' => &$totals,
+				'taxes'  => &$taxes,
+				'total'  => &$total
+			);
+			
 			// Display prices
 			if (($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) {
 				$sort_order = array();
@@ -203,23 +210,24 @@ class ControllerCheckoutCart extends Controller {
 				foreach ($results as $result) {
 					if ($this->config->get($result['code'] . '_status')) {
 						$this->load->model('total/' . $result['code']);
-
-						$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+						
+						// We have to put the totals in an array so that they pass by reference.
+						$this->{'model_total_' . $result['code']}->getTotal($total_data);
 					}
 				}
 
 				$sort_order = array();
 
-				foreach ($total_data as $key => $value) {
+				foreach ($totals as $key => $value) {
 					$sort_order[$key] = $value['sort_order'];
 				}
 
-				array_multisort($sort_order, SORT_ASC, $total_data);
+				array_multisort($sort_order, SORT_ASC, $totals);
 			}
 
 			$data['totals'] = array();
 
-			foreach ($total_data as $total) {
+			foreach ($totals as $total) {
 				$data['totals'][] = array(
 					'title' => $total['title'],
 					'text'  => $this->currency->format($total['value'])
@@ -228,19 +236,21 @@ class ControllerCheckoutCart extends Controller {
 
 			$data['continue'] = $this->url->link('common/home');
 
-			$data['checkout'] = $this->url->link('checkout/checkout', '', 'SSL');
+			$data['checkout'] = $this->url->link('checkout/checkout', '', true);
 
 			$this->load->model('extension/extension');
 
-			$data['checkout_buttons'] = array();
-
+			$data['modules'] = array();
+			
 			$files = glob(DIR_APPLICATION . '/controller/total/*.php');
 
 			if ($files) {
 				foreach ($files as $file) {
-					$extension = basename($file, '.php');
-
-					$data[$extension] = $this->load->controller('total/' . $extension);
+					$result = $this->load->controller('total/' . basename($file, '.php'));
+					
+					if ($result) {
+						$data['modules'][] = $result;
+					}
 				}
 			}
 
@@ -251,11 +261,7 @@ class ControllerCheckoutCart extends Controller {
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
 
-			if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/checkout/cart.tpl')) {
-				$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/checkout/cart.tpl', $data));
-			} else {
-				$this->response->setOutput($this->load->view('default/template/checkout/cart.tpl', $data));
-			}
+			$this->response->setOutput($this->load->view('checkout/cart', $data));
 		} else {
 			$data['heading_title'] = $this->language->get('heading_title');
 
@@ -274,11 +280,7 @@ class ControllerCheckoutCart extends Controller {
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
 
-			if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/error/not_found.tpl')) {
-				$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/error/not_found.tpl', $data));
-			} else {
-				$this->response->setOutput($this->load->view('default/template/error/not_found.tpl', $data));
-			}
+			$this->response->setOutput($this->load->view('error/not_found', $data));
 		}
 	}
 
@@ -352,9 +354,16 @@ class ControllerCheckoutCart extends Controller {
 				// Totals
 				$this->load->model('extension/extension');
 
-				$total_data = array();
-				$total = 0;
+				$totals = array();
 				$taxes = $this->cart->getTaxes();
+				$total = 0;
+		
+				// Because __call can not keep var references so we put them into an array. 			
+				$total_data = array(
+					'totals' => &$totals,
+					'taxes'  => &$taxes,
+					'total'  => &$total
+				);
 
 				// Display prices
 				if (($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) {
@@ -372,17 +381,18 @@ class ControllerCheckoutCart extends Controller {
 						if ($this->config->get($result['code'] . '_status')) {
 							$this->load->model('total/' . $result['code']);
 
-							$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+							// We have to put the totals in an array so that they pass by reference.
+							$this->{'model_total_' . $result['code']}->getTotal($total_data);
 						}
 					}
 
 					$sort_order = array();
 
-					foreach ($total_data as $key => $value) {
+					foreach ($totals as $key => $value) {
 						$sort_order[$key] = $value['sort_order'];
 					}
 
-					array_multisort($sort_order, SORT_ASC, $total_data);
+					array_multisort($sort_order, SORT_ASC, $totals);
 				}
 
 				$json['total'] = sprintf($this->language->get('text_items'), $this->cart->countProducts() + (isset($this->session->data['vouchers']) ? count($this->session->data['vouchers']) : 0), $this->currency->format($total));
@@ -441,9 +451,16 @@ class ControllerCheckoutCart extends Controller {
 			// Totals
 			$this->load->model('extension/extension');
 
-			$total_data = array();
-			$total = 0;
+			$totals = array();
 			$taxes = $this->cart->getTaxes();
+			$total = 0;
+
+			// Because __call can not keep var references so we put them into an array. 			
+			$total_data = array(
+				'totals' => &$totals,
+				'taxes'  => &$taxes,
+				'total'  => &$total
+			);
 
 			// Display prices
 			if (($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) {
@@ -461,17 +478,18 @@ class ControllerCheckoutCart extends Controller {
 					if ($this->config->get($result['code'] . '_status')) {
 						$this->load->model('total/' . $result['code']);
 
-						$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+						// We have to put the totals in an array so that they pass by reference.
+						$this->{'model_total_' . $result['code']}->getTotal($total_data);
 					}
 				}
 
 				$sort_order = array();
 
-				foreach ($total_data as $key => $value) {
+				foreach ($totals as $key => $value) {
 					$sort_order[$key] = $value['sort_order'];
 				}
 
-				array_multisort($sort_order, SORT_ASC, $total_data);
+				array_multisort($sort_order, SORT_ASC, $totals);
 			}
 
 			$json['total'] = sprintf($this->language->get('text_items'), $this->cart->countProducts() + (isset($this->session->data['vouchers']) ? count($this->session->data['vouchers']) : 0), $this->currency->format($total));

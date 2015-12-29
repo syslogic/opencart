@@ -116,11 +116,7 @@ class ControllerPaymentSagepayDirect extends Controller {
 			$data['existing_cards'] = $this->model_payment_sagepay_direct->getCards($this->customer->getId());
 		}
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/sagepay_direct.tpl')) {
-			return $this->load->view($this->config->get('config_template') . '/template/payment/sagepay_direct.tpl', $data);
-		} else {
-			return $this->load->view('default/template/payment/sagepay_direct.tpl', $data);
-		}
+		return $this->load->view('payment/sagepay_direct', $data);
 	}
 
 	public function send() {
@@ -250,7 +246,7 @@ class ControllerPaymentSagepayDirect extends Controller {
 				$this->model_payment_sagepay_direct->addCard($this->session->data['order_id'], $card_data);
 			}
 
-			$json['TermUrl'] = $this->url->link('payment/sagepay_direct/callback', '', 'SSL');
+			$json['TermUrl'] = $this->url->link('payment/sagepay_direct/callback', '', true);
 		} elseif ($response_data['Status'] == 'OK' || $response_data['Status'] == 'AUTHENTICATED' || $response_data['Status'] == 'REGISTERED') {
 			$message = '';
 
@@ -308,7 +304,7 @@ class ControllerPaymentSagepayDirect extends Controller {
 				}
 			}
 
-			$json['redirect'] = $this->url->link('checkout/success', '', 'SSL');
+			$json['redirect'] = $this->url->link('checkout/success', '', true);
 		} else {
 			$json['error'] = $response_data['Status'] . ': ' . $response_data['StatusDetail'];
 
@@ -399,14 +395,14 @@ class ControllerPaymentSagepayDirect extends Controller {
 					}
 				}
 
-				$this->response->redirect($this->url->link('checkout/success', '', 'SSL'));
+				$this->response->redirect($this->url->link('checkout/success', '', true));
 			} else {
 				$this->session->data['error'] = $response_data['StatusDetail'];
 
-				$this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
+				$this->response->redirect($this->url->link('checkout/checkout', '', true));
 			}
 		} else {
-			$this->response->redirect($this->url->link('account/login', '', 'SSL'));
+			$this->response->redirect($this->url->link('account/login', '', true));
 		}
 	}
 

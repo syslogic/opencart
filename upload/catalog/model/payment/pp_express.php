@@ -227,10 +227,17 @@ class ModelPaymentPPExpress extends Model {
 		// Totals
 		$this->load->model('extension/extension');
 
-		$total_data = array();
-		$total = 0;
+		$totals = array();
 		$taxes = $this->cart->getTaxes();
+		$total = 0;
 
+		// Because __call can not keep var references so we put them into an array.
+		$total_data = array(
+			'totals' => &$totals,
+			'taxes'  => &$taxes,
+			'total'  => &$total
+		);
+			
 		// Display prices
 		if (($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) {
 			$sort_order = array();
@@ -247,16 +254,17 @@ class ModelPaymentPPExpress extends Model {
 				if ($this->config->get($result['code'] . '_status')) {
 					$this->load->model('total/' . $result['code']);
 
-					$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+					// We have to put the totals in an array so that they pass by reference.
+					$this->{'model_total_' . $result['code']}->getTotal($total_data);
 				}
 
 				$sort_order = array();
 
-				foreach ($total_data as $key => $value) {
+				foreach ($totals as $key => $value) {
 					$sort_order[$key] = $value['sort_order'];
 				}
 
-				array_multisort($sort_order, SORT_ASC, $total_data);
+				array_multisort($sort_order, SORT_ASC, $totals);
 			}
 		}
 
@@ -284,7 +292,7 @@ class ModelPaymentPPExpress extends Model {
 		$recurring_products = $this->cart->getRecurringProducts();
 
 		if ($recurring_products) {
-			$this->language->load('payment/pp_express');
+			$this->load->language('payment/pp_express');
 
 			foreach ($recurring_products as $item) {
 				$data['L_BILLINGTYPE' . $z] = 'RecurringPayments';

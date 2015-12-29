@@ -94,6 +94,8 @@ class ControllerApiOrder extends Controller {
 			}
 
 			if (!$json) {
+				$json['success'] = $this->language->get('text_success');
+				
 				$order_data = array();
 
 				// Store Details
@@ -224,7 +226,7 @@ class ControllerApiOrder extends Controller {
 					foreach ($this->session->data['vouchers'] as $voucher) {
 						$order_data['vouchers'][] = array(
 							'description'      => $voucher['description'],
-							'code'             => substr(token(32), 0, 10),
+							'code'             => token(10),
 							'to_name'          => $voucher['to_name'],
 							'to_email'         => $voucher['to_email'],
 							'from_name'        => $voucher['from_name'],
@@ -239,10 +241,17 @@ class ControllerApiOrder extends Controller {
 				// Order Totals
 				$this->load->model('extension/extension');
 
-				$order_data['totals'] = array();
-				$total = 0;
+				$totals = array();
 				$taxes = $this->cart->getTaxes();
+				$total = 0;
 
+				// Because __call can not keep var references so we put them into an array.
+				$total_data = array(
+					'totals' => &$totals,
+					'taxes'  => &$taxes,
+					'total'  => &$total
+				);
+			
 				$sort_order = array();
 
 				$results = $this->model_extension_extension->getExtensions('total');
@@ -256,18 +265,19 @@ class ControllerApiOrder extends Controller {
 				foreach ($results as $result) {
 					if ($this->config->get($result['code'] . '_status')) {
 						$this->load->model('total/' . $result['code']);
-
-						$this->{'model_total_' . $result['code']}->getTotal($order_data['totals'], $total, $taxes);
+						
+						// We have to put the totals in an array so that they pass by reference.
+						$this->{'model_total_' . $result['code']}->getTotal($total_data);
 					}
 				}
 
 				$sort_order = array();
 
-				foreach ($order_data['totals'] as $key => $value) {
+				foreach ($totals as $key => $value) {
 					$sort_order[$key] = $value['sort_order'];
 				}
 
-				array_multisort($sort_order, SORT_ASC, $order_data['totals']);
+				array_multisort($sort_order, SORT_ASC, $totals);
 
 				if (isset($this->request->post['comment'])) {
 					$order_data['comment'] = $this->request->post['comment'];
@@ -341,8 +351,6 @@ class ControllerApiOrder extends Controller {
 				}
 
 				$this->model_checkout_order->addOrderHistory($json['order_id'], $order_status_id);
-
-				$json['success'] = $this->language->get('text_success');
 			}
 		}
 
@@ -461,6 +469,8 @@ class ControllerApiOrder extends Controller {
 				}
 
 				if (!$json) {
+					$json['success'] = $this->language->get('text_success');
+					
 					$order_data = array();
 
 					// Store Details
@@ -606,10 +616,17 @@ class ControllerApiOrder extends Controller {
 					// Order Totals
 					$this->load->model('extension/extension');
 
-					$order_data['totals'] = array();
-					$total = 0;
+					$totals = array();
 					$taxes = $this->cart->getTaxes();
-
+					$total = 0;
+					
+					// Because __call can not keep var references so we put them into an array. 
+					$total_data = array(
+						'totals' => &$totals,
+						'taxes'  => &$taxes,
+						'total'  => &$total
+					);
+			
 					$sort_order = array();
 
 					$results = $this->model_extension_extension->getExtensions('total');
@@ -623,18 +640,19 @@ class ControllerApiOrder extends Controller {
 					foreach ($results as $result) {
 						if ($this->config->get($result['code'] . '_status')) {
 							$this->load->model('total/' . $result['code']);
-
-							$this->{'model_total_' . $result['code']}->getTotal($order_data['totals'], $total, $taxes);
+							
+							// We have to put the totals in an array so that they pass by reference.
+							$this->{'model_total_' . $result['code']}->getTotal($total_data);
 						}
 					}
 
 					$sort_order = array();
 
-					foreach ($order_data['totals'] as $key => $value) {
+					foreach ($totals as $key => $value) {
 						$sort_order[$key] = $value['sort_order'];
 					}
 
-					array_multisort($sort_order, SORT_ASC, $order_data['totals']);
+					array_multisort($sort_order, SORT_ASC, $totals);
 
 					if (isset($this->request->post['comment'])) {
 						$order_data['comment'] = $this->request->post['comment'];
@@ -642,7 +660,7 @@ class ControllerApiOrder extends Controller {
 						$order_data['comment'] = '';
 					}
 
-					$order_data['total'] = $total;
+					$order_data['total'] = $total_data['total'];
 
 					if (isset($this->request->post['affiliate_id'])) {
 						$subtotal = $this->cart->getSubTotal();
@@ -674,8 +692,6 @@ class ControllerApiOrder extends Controller {
 					}
 
 					$this->model_checkout_order->addOrderHistory($order_id, $order_status_id);
-
-					$json['success'] = $this->language->get('text_success');
 				}
 			} else {
 				$json['error'] = $this->language->get('error_not_found');
@@ -743,7 +759,7 @@ class ControllerApiOrder extends Controller {
 			$keys = array(
 				'order_status_id',
 				'notify',
-				'append',
+				'override',
 				'comment'
 			);
 

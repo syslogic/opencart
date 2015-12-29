@@ -58,11 +58,7 @@ class ControllerPaymentGlobalpayRemote extends Controller {
 			);
 		}
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/globalpay_remote.tpl')) {
-			return $this->load->view($this->config->get('config_template') . '/template/payment/globalpay_remote.tpl', $data);
-		} else {
-			return $this->load->view('default/template/payment/globalpay_remote.tpl', $data);
-		}
+		return $this->load->view('payment/globalpay_remote', $data);
 	}
 
 	public function send() {
@@ -139,7 +135,7 @@ class ControllerPaymentGlobalpayRemote extends Controller {
 					$json['ACSURL'] = (string)$verify_3ds->url;
 					$json['MD'] = $md;
 					$json['PaReq'] = (string)$verify_3ds->pareq;
-					$json['TermUrl'] = $this->url->link('payment/globalpay_remote/acsReturn', '', 'SSL');
+					$json['TermUrl'] = $this->url->link('payment/globalpay_remote/acsReturn', '', true);
 
 					$this->response->addHeader('Content-Type: application/json');
 					$this->response->setOutput(json_encode($json));
@@ -313,7 +309,7 @@ class ControllerPaymentGlobalpayRemote extends Controller {
 
 					$this->session->data['error'] = $this->language->get('error_3d_unsuccessful');
 
-					$this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
+					$this->response->redirect($this->url->link('checkout/checkout', '', true));
 					die();
 				}
 			}
@@ -341,12 +337,12 @@ class ControllerPaymentGlobalpayRemote extends Controller {
 			if ($capture_result->result != '00') {
 				$this->session->data['error'] = (string)$capture_result->message . ' (' . (int)$capture_result->result . ')';
 
-				$this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
+				$this->response->redirect($this->url->link('checkout/checkout', '', true));
 			} else {
 				$this->response->redirect($this->url->link('checkout/success'));
 			}
 		} else {
-			$this->response->redirect($this->url->link('account/login', '', 'SSL'));
+			$this->response->redirect($this->url->link('account/login', '', true));
 		}
 	}
 }

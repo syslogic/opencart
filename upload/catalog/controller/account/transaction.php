@@ -2,9 +2,9 @@
 class ControllerAccountTransaction extends Controller {
 	public function index() {
 		if (!$this->customer->isLogged()) {
-			$this->session->data['redirect'] = $this->url->link('account/transaction', '', 'SSL');
+			$this->session->data['redirect'] = $this->url->link('account/transaction', '', true);
 
-			$this->response->redirect($this->url->link('account/login', '', 'SSL'));
+			$this->response->redirect($this->url->link('account/login', '', true));
 		}
 
 		$this->load->language('account/transaction');
@@ -20,12 +20,12 @@ class ControllerAccountTransaction extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_account'),
-			'href' => $this->url->link('account/account', '', 'SSL')
+			'href' => $this->url->link('account/account', '', true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_transaction'),
-			'href' => $this->url->link('account/transaction', '', 'SSL')
+			'href' => $this->url->link('account/transaction', '', true)
 		);
 
 		$this->load->model('account/transaction');
@@ -72,7 +72,7 @@ class ControllerAccountTransaction extends Controller {
 		$pagination->total = $transaction_total;
 		$pagination->page = $page;
 		$pagination->limit = 10;
-		$pagination->url = $this->url->link('account/transaction', 'page={page}', 'SSL');
+		$pagination->url = $this->url->link('account/transaction', 'page={page}', true);
 
 		$data['pagination'] = $pagination->render();
 
@@ -80,7 +80,7 @@ class ControllerAccountTransaction extends Controller {
 
 		$data['total'] = $this->currency->format($this->customer->getBalance());
 
-		$data['continue'] = $this->url->link('account/account', '', 'SSL');
+		$data['continue'] = $this->url->link('account/account', '', true);
 
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['column_right'] = $this->load->controller('common/column_right');
@@ -89,10 +89,6 @@ class ControllerAccountTransaction extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/account/transaction.tpl')) {
-			$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/account/transaction.tpl', $data));
-		} else {
-			$this->response->setOutput($this->load->view('default/template/account/transaction.tpl', $data));
-		}
+		$this->response->setOutput($this->load->view('account/transaction', $data));
 	}
 }

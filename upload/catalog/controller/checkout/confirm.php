@@ -6,12 +6,12 @@ class ControllerCheckoutConfirm extends Controller {
 		if ($this->cart->hasShipping()) {
 			// Validate if shipping address has been set.
 			if (!isset($this->session->data['shipping_address'])) {
-				$redirect = $this->url->link('checkout/checkout', '', 'SSL');
+				$redirect = $this->url->link('checkout/checkout', '', true);
 			}
 
 			// Validate if shipping method has been set.
 			if (!isset($this->session->data['shipping_method'])) {
-				$redirect = $this->url->link('checkout/checkout', '', 'SSL');
+				$redirect = $this->url->link('checkout/checkout', '', true);
 			}
 		} else {
 			unset($this->session->data['shipping_address']);
@@ -21,12 +21,12 @@ class ControllerCheckoutConfirm extends Controller {
 
 		// Validate if payment address has been set.
 		if (!isset($this->session->data['payment_address'])) {
-			$redirect = $this->url->link('checkout/checkout', '', 'SSL');
+			$redirect = $this->url->link('checkout/checkout', '', true);
 		}
 
 		// Validate if payment method has been set.
 		if (!isset($this->session->data['payment_method'])) {
-			$redirect = $this->url->link('checkout/checkout', '', 'SSL');
+			$redirect = $this->url->link('checkout/checkout', '', true);
 		}
 
 		// Validate cart has products and has stock.
@@ -56,10 +56,17 @@ class ControllerCheckoutConfirm extends Controller {
 		if (!$redirect) {
 			$order_data = array();
 
-			$order_data['totals'] = array();
-			$total = 0;
+			$totals = array();
 			$taxes = $this->cart->getTaxes();
+			$total = 0;
 
+			// Because __call can not keep var references so we put them into an array. 
+			$total_data = array(
+				'totals' => &$totals,
+				'taxes'  => &$taxes,
+				'total'  => &$total
+			);
+			
 			$this->load->model('extension/extension');
 
 			$sort_order = array();
@@ -76,17 +83,20 @@ class ControllerCheckoutConfirm extends Controller {
 				if ($this->config->get($result['code'] . '_status')) {
 					$this->load->model('total/' . $result['code']);
 
-					$this->{'model_total_' . $result['code']}->getTotal($order_data['totals'], $total, $taxes);
+					// We have to put the totals in an array so that they pass by reference.
+					$this->{'model_total_' . $result['code']}->getTotal($total_data);
 				}
 			}
 
 			$sort_order = array();
 
-			foreach ($order_data['totals'] as $key => $value) {
+			foreach ($totals as $key => $value) {
 				$sort_order[$key] = $value['sort_order'];
 			}
 
-			array_multisort($sort_order, SORT_ASC, $order_data['totals']);
+			array_multisort($sort_order, SORT_ASC, $totals);
+
+			$order_data['totals'] = $totals;
 
 			$this->load->language('checkout/checkout');
 
@@ -246,7 +256,7 @@ class ControllerCheckoutConfirm extends Controller {
 			}
 
 			$order_data['comment'] = $this->session->data['comment'];
-			$order_data['total'] = $total;
+			$order_data['total'] = $total_data['total'];
 
 			if (isset($this->request->cookie['tracking'])) {
 				$order_data['tracking'] = $this->request->cookie['tracking'];
@@ -411,10 +421,6 @@ class ControllerCheckoutConfirm extends Controller {
 			$data['redirect'] = $redirect;
 		}
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/checkout/confirm.tpl')) {
-			$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/checkout/confirm.tpl', $data));
-		} else {
-			$this->response->setOutput($this->load->view('default/template/checkout/confirm.tpl', $data));
-		}
+		$this->response->setOutput($this->load->view('checkout/confirm', $data));
 	}
 }

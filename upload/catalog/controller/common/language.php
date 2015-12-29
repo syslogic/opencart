@@ -7,7 +7,7 @@ class ControllerCommonLanguage extends Controller {
 
 		$data['action'] = $this->url->link('common/language/language', '', $this->request->server['HTTPS']);
 
-		$data['code'] = $this->session->data['language'];
+		$data['code'] = $this->request->cookie['language'];
 
 		$this->load->model('localisation/language');
 
@@ -18,9 +18,8 @@ class ControllerCommonLanguage extends Controller {
 		foreach ($results as $result) {
 			if ($result['status']) {
 				$data['languages'][] = array(
-					'name'  => $result['name'],
-					'code'  => $result['code'],
-					'image' => $result['image']
+					'name' => $result['name'],
+					'code' => $result['code']
 				);
 			}
 		}
@@ -29,8 +28,6 @@ class ControllerCommonLanguage extends Controller {
 			$data['redirect'] = $this->url->link('common/home');
 		} else {
 			$url_data = $this->request->get;
-
-			unset($url_data['_route_']);
 
 			$route = $url_data['route'];
 
@@ -45,16 +42,12 @@ class ControllerCommonLanguage extends Controller {
 			$data['redirect'] = $this->url->link($route, $url, $this->request->server['HTTPS']);
 		}
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/common/language.tpl')) {
-			return $this->load->view($this->config->get('config_template') . '/template/common/language.tpl', $data);
-		} else {
-			return $this->load->view('default/template/common/language.tpl', $data);
-		}
+		return $this->load->view('common/language', $data);
 	}
 
 	public function language() {
 		if (isset($this->request->post['code'])) {
-			$this->session->data['language'] = $this->request->post['code'];
+			setcookie('language', $this->request->post['code'], time() + 60 * 60 * 24 * 30, '/', $this->request->server['HTTP_HOST']);
 		}
 
 		if (isset($this->request->post['redirect'])) {
