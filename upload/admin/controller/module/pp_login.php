@@ -40,6 +40,7 @@ class ControllerModulePPLogin extends Controller {
 
 		$data['help_sandbox'] = $this->language->get('help_sandbox');
 		$data['help_customer_group'] = $this->language->get('help_customer_group');
+		$data['help_attributes'] = $this->language->get('help_attributes');
 		$data['help_seamless'] = $this->language->get('help_seamless');
 		$data['help_debug_logging'] = $this->language->get('help_debug_logging');
 		$data['help_locale'] = $this->language->get('help_locale');
