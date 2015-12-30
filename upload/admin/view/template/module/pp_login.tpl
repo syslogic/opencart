@@ -100,6 +100,20 @@
             </div>
           </div>
           <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-attributes"><span data-toggle="tooltip" title="<?php echo $help_attributes; ?>"><?php echo $entry_attributes; ?></span></label>
+            <div class="col-sm-10">
+              <select name="pp_login_attributes" id="input-logging" class="form-control">
+                <?php if ($pp_login_attributes) { ?>
+                <option value="1" selected="selected"><?php echo $text_yes; ?></option>
+                <option value="0"><?php echo $text_no; ?></option>
+                <?php } else { ?>
+                <option value="1"><?php echo $text_yes; ?></option>
+                <option value="0" selected="selected"><?php echo $text_no; ?></option>
+                <?php } ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
             <label class="col-sm-2 control-label" for="input-seamless"><span data-toggle="tooltip" title="<?php echo $help_seamless; ?>"><?php echo $entry_seamless; ?></span></label>
             <div class="col-sm-10">
               <select name="pp_login_seamless" id="input-logging" class="form-control">
