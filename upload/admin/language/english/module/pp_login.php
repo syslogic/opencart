@@ -16,6 +16,7 @@ $_['entry_sandbox']        = 'Sandbox Mode';
 $_['entry_debug']          = 'Debug Logging';
 $_['entry_customer_group'] = 'Customer Group';
 $_['entry_button']         = 'Button Colour';
+$_['entry_attributes']     = 'Obtain Profile Attributes';
 $_['entry_seamless']       = 'Allow "Seamless Checkout"';
 $_['entry_locale']         = 'Locale';
 $_['entry_return_url']     = 'Return URL';
