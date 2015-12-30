@@ -41,7 +41,11 @@ class ControllerModulePPLogin extends Controller {
 				'address',
 				'phone'
 			);
-
+			
+			if ($this->config->get('pp_login_attributes')) {
+				$scopes[] = 'https://uri.paypal.com/services/paypalattributes';
+			}
+			
 			if ($this->config->get('pp_login_seamless')) {
 				$scopes[] = 'https://uri.paypal.com/services/expresscheckout';
 			}
