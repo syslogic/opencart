@@ -131,6 +131,12 @@ class ControllerModulePPLogin extends Controller {
 			$data['pp_login_button_colour'] = 'blue';
 		}
 
+		if (isset($this->request->post['pp_login_attributes'])) {
+			$data['pp_login_attributes'] = $this->request->post['pp_login_attributes'];
+		} else {
+			$data['pp_login_attributes'] = $this->config->get('pp_login_attributes');
+		}
+
 		if (isset($this->request->post['pp_login_seamless'])) {
 			$data['pp_login_seamless'] = $this->request->post['pp_login_seamless'];
 		} else {
