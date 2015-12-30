@@ -26,6 +26,7 @@ $_['entry_status']         = 'Status';
 $_['help_sandbox']         = 'Use sandbox (testing) environment?';
 $_['help_customer_group']  = 'For new customers, which Customer Group should they get created as?';
 $_['help_debug_logging']   = 'Enabling this will allow data to be added to your error log to help debug any problems.';
+$_['help_attributes']      = 'Enabling this will ask the customer for permission to share further PayPal account attributes: the Age range, Account status, type and date of creation.';
 $_['help_seamless']        = 'Allows auto-login when customers choose PayPal Express Checkout. To use this, the option must be enabled in your Log in With PayPal account. You must also use the same account as the one used in Express Checkout.';
 $_['help_locale']          = 'This is the PayPal locale setting for your store languages';
 $_['help_return_url']      = 'This needs to be added in the PayPal app configuration under app redirect URLs.';
